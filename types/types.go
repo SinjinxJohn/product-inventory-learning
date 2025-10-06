@@ -37,3 +37,14 @@ type LoginUser struct {
 // 	Email     string    `json:"email"`
 // 	CreatedAt time.Time `json:"createdAt"`
 // }
+
+type Categories struct {
+	ID        int       `json:"ID"`
+	Name      string    `json:"name"`
+	CreatedAt time.Time `json:"createdAt"`
+}
+
+type CategoryStore interface {
+	GetAllCategories() ([]*Categories, error)
+	CreateCategory(categoryName string) error
+}

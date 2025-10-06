@@ -7,6 +7,7 @@ import (
 	"example.com/event-app/config"
 	"example.com/event-app/service/auth"
 	"example.com/event-app/service/auth/middlewares"
+
 	"example.com/event-app/types"
 	"example.com/event-app/utils"
 	"github.com/gorilla/mux"
