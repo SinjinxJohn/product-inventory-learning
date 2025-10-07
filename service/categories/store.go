@@ -2,6 +2,7 @@ package categories
 
 import (
 	"database/sql"
+	"fmt"
 
 	"example.com/event-app/types"
 )
@@ -36,14 +37,33 @@ func (s *Store) GetAllCategories() ([]*types.Categories, error) {
 	return categories, nil
 }
 
-func (s *Store) CreateCategory(categoryName string) error {
+func (s *Store) CreateCategory(cat *types.CreateCategoryPayload) error {
 	query := `INSERT INTO category(name) VALUES(?)`
-	_, err := s.db.Exec(query, categoryName)
+	_, err := s.db.Exec(query, cat.Name)
 
 	if err != nil {
 		return err
 	}
 	return nil
+
+}
+
+func (s *Store) GetCategoryByName(categoryName string) (*types.Categories, error) {
+	rows, err := s.db.Query("SELECT (id,name,createdAt) FROM category WHERE name = ?")
+	if err != nil {
+		return nil, err
+	}
+	cat := new(types.Categories)
+	for rows.Next() {
+		cat, err = scanRowsInCategories(rows)
+		if err != nil {
+			return nil, err
+		}
+	}
+	if cat.ID == 0 {
+		return nil, fmt.Errorf("category not found")
+	}
+	return cat, nil
 
 }
 
@@ -54,6 +74,7 @@ func scanRowsInCategories(rows *sql.Rows) (*types.Categories, error) {
 		&category.Name,
 		&category.CreatedAt,
 	)
+
 	if err != nil {
 		return nil, err
 	}

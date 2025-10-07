@@ -44,7 +44,12 @@ type Categories struct {
 	CreatedAt time.Time `json:"createdAt"`
 }
 
+type CreateCategoryPayload struct {
+	Name string `json:"name" validate:"required"`
+}
+
 type CategoryStore interface {
 	GetAllCategories() ([]*Categories, error)
-	CreateCategory(categoryName string) error
+	CreateCategory(*CreateCategoryPayload) error
+	GetCategoryByName(categoryName string) (*Categories, error)
 }
