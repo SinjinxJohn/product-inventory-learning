@@ -1,6 +1,7 @@
 package middlewares
 
 import (
+	"fmt"
 	"net/http"
 
 	"example.com/event-app/types"
@@ -11,7 +12,13 @@ import (
 func RoleMiddleware(store types.UserStore, role string) mux.MiddlewareFunc {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			userId := r.Context().Value("userID").(int)
+			val := r.Context().Value(UserIDKey)
+			userId, ok := val.(int)
+			if !ok {
+				utils.WriteError(w, http.StatusUnauthorized, fmt.Errorf("userID missing in context"))
+				return
+			}
+
 			user, err := store.GetUserByID(userId)
 			if err != nil {
 				utils.WriteError(w, http.StatusUnauthorized, err)
@@ -19,7 +26,7 @@ func RoleMiddleware(store types.UserStore, role string) mux.MiddlewareFunc {
 			}
 
 			if user.Role != role {
-				utils.WriteError(w, http.StatusUnauthorized, err)
+				utils.WriteError(w, http.StatusForbidden, fmt.Errorf("unauthorized role"))
 				return
 			}
 
